@@ -1,0 +1,8 @@
+# Ignore the compiled executables
+*.exe
+my-gui-app (or whatever your binary name is)
+
+# Ignore Fyne's metadata/cache
+bin/
+fyne-cross/
+
