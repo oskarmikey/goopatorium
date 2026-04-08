@@ -144,51 +144,62 @@ func spawnPopup(a fyne.App, title string, message string, isthereachoice bool) {
 }
 
 func tgaillmchat(a fyne.App) {
-	cWin := a.NewWindow("Chat")
+	cWin := a.NewWindow("Bugatti Chat Engine")
 
-	// Using a Label instead of Canvas Text for better chat behavior
-	text := widget.NewLabel("bla bla bla")
-	text.Alignment = fyne.TextAlignLeading // Left side
-	text.TextStyle = fyne.TextStyle{Italic: true}
-	text.Wrapping = fyne.TextWrapWord
+	// 1. Use RichText so the AI's Markdown (tables/bold) actually renders!
+	chatDisplay := widget.NewRichTextFromMarkdown("## Welcome to the Engine Room\nType something to begin...")
 
-	input := widget.NewEntry()
-	input.SetPlaceHolder("yolo")
+	// Wrap the chat in a scroll container
+	scrollContainer := container.NewVScroll(chatDisplay)
+
+	// 2. MultiLineEntry allows for a better input feel
+	input := widget.NewMultiLineEntry()
+	input.SetPlaceHolder("Message the AI...")
 
 	var fullHistory []Message
-	submitBtn := widget.NewButton("Send", func() {
+
+	// Function to handle sending (so we can call it from the button OR the keyboard)
+	sendFunc := func() {
 		userText := input.Text
 		if userText == "" {
 			return
 		}
+
+		input.SetText("") // Clear immediately for snappiness
 		fullHistory = append(fullHistory, Message{Role: "user", Content: userText})
-		text.SetText("You: " + userText + "\n\nThinking...")
+
+		// Update display to show we are thinking
+		chatDisplay.ParseMarkdown("Thinking...")
 
 		go func() {
 			reply, err := getAIResponse(fullHistory)
-
 			if err != nil {
-				fmt.Println("Error fetching response:", err)
-				// Even in error, let's update the UI safely
-				text.SetText("Error: " + err.Error())
+				chatDisplay.ParseMarkdown("**Error:** " + err.Error())
 				return
 			}
 
 			fullHistory = append(fullHistory, Message{Role: "assistant", Content: reply})
-			fmt.Println("Ai rasppbery:", reply)
 
-			text.SetText(reply)
-			input.SetText("")
+			// Render the full response as Markdown
+			chatDisplay.ParseMarkdown(reply)
+
+			// Auto-scroll to bottom
+			scrollContainer.ScrollToBottom()
 		}()
-	})
+	}
 
-	cWin.SetContent(container.NewVBox(
-		container.NewVScroll(text),
-		input,
-		container.NewGridWrap(fyne.NewSize(200, 50), submitBtn),
-	))
+	// 3. The "Border" Layout: Scroll in Center, Input + Button at Bottom
+	sendBtn := widget.NewButton("Send", sendFunc)
 
-	cWin.Resize(fyne.NewSize(400, 300)) // E
+	// Create a bottom row with the input and the button
+	// Using a GridWrap or just a simple HBox for the button
+	bottomRow := container.NewBorder(nil, nil, nil, sendBtn, input)
+
+	// Final Layout: Scroll area takes all space, bottomRow stays pinned
+	content := container.NewBorder(nil, bottomRow, nil, nil, scrollContainer)
+
+	cWin.SetContent(content)
+	cWin.Resize(fyne.NewSize(500, 600))
 	cWin.CenterOnScreen()
 	cWin.Show()
 }
