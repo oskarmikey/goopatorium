@@ -2,38 +2,59 @@ package main
 
 import (
 	"fmt"
+	"log"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
+	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
 )
 
 func main() {
 	myApp := app.New()
-	myWindow := myApp.NewWindow("Hellowwwwyy World")
-	screenSize := fyne.CurrentApp().Driver().AllWindows()[0].Canvas().Size()
+	myWindow := myApp.NewWindow(" Button testi")
 
-	screenWidth := screenSize.Width
-	screenHeight := screenSize.Height
+	fmt.Println("this shit works!")
 
-	targetWidth := screenWidth * 0.2
-	targetHeight := screenHeight * 0.4
+	input := widget.NewEntry()
+	input.SetPlaceHolder("yolo")
 
-	if targetWidth < 300 {
-		targetWidth = 300
-	}
-	if targetWidth > 800 {
-		targetWidth = 800
-	}
+	input_saveBtnSize := fyne.NewSize(200, 50)
+	saveBtn := widget.NewButton("save", func() {
+		log.Println("saved info is: ", input.Text)
+	})
+	sizedSaveBtn := container.NewGridWrap(input_saveBtnSize, saveBtn)
 
-	myWindow.Resize(fyne.NewSize(targetWidth, targetHeight))
+	boopBtn := widget.NewButton("boops here", func() {
+		log.Println("Boop!")
+	})
+
+	check := widget.NewCheck("Optional ?", func(value bool) {
+		log.Println("chek isorwas set to", value)
+	})
+
+	radio := widget.NewRadioGroup([]string{"option1", "option2"}, func(value string) {
+		log.Println("radio set to", value)
+	})
+
+	combo := widget.NewSelect([]string{"option3", "option4"}, func(value string) {
+		log.Println("It was set to", value)
+	})
+
+	mainLayout := container.NewVBox(
+		input,
+		sizedSaveBtn,
+		boopBtn,
+		check,
+		radio,
+		combo,
+	)
+
 	myWindow.CenterOnScreen()
 
-	myWindow.SetContent(widget.NewLabel("Hello World!"))
-	myWindow.ShowAndRun()
-	tidyup()
-}
+	myWindow.Canvas().Size()
 
-func tidyup() {
-	fmt.Println("Testing123zzz")
+	myWindow.SetContent(mainLayout)
+	myWindow.ShowAndRun()
+
 }
