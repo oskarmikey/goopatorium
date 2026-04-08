@@ -12,7 +12,7 @@ import (
 
 func main() {
 	myApp := app.New()
-	myWindow := myApp.NewWindow(" Button testi")
+	myWindow := myApp.NewWindow(" Buggati power engine")
 
 	fmt.Println("this shit works!")
 
@@ -27,6 +27,10 @@ func main() {
 
 	boopBtn := widget.NewButton("boops here", func() {
 		log.Println("Boop!")
+	})
+
+	boopBtnSpawnPopup := widget.NewButton("boops here for popup", func() {
+		spawnPopup(myApp, "Suprise thy selves", "I am thus descented from thee thus i serve you", true)
 	})
 
 	check := widget.NewCheck("Optional ?", func(value bool) {
@@ -58,6 +62,7 @@ func main() {
 		input,
 		sizedSaveBtn,
 		boopBtn,
+		boopBtnSpawnPopup,
 		check,
 		radio,
 		combo,
@@ -73,6 +78,61 @@ func main() {
 
 }
 
-func alterPopup() {
-	alertWindow.
+func summonTheePopup(a fyne.App, title string, message string) {
+	win := a.NewWindow(title)
+
+	label := widget.NewLabel(message)
+	closeBtn := widget.NewButton("Go away", func() {
+		win.Close()
+	})
+
+	closeBtn2 := widget.NewButton("Okay", func() {
+		win.Close()
+	})
+
+	win.SetContent(container.NewVBox(
+		label,
+		closeBtn,
+		closeBtn2,
+	))
+	win.CenterOnScreen()
+	win.Resize(fyne.NewSize(200, 100))
+	win.Show()
+}
+
+func spawnPopup(a fyne.App, title string, message string, isthereachoice bool) {
+	win := a.NewWindow(title)
+
+	label := widget.NewLabel(message)
+	closeBtn := widget.NewButton("Go away", func() {
+		win.Close()
+	})
+
+	var blueorredpill fyne.CanvasObject
+	if isthereachoice {
+
+		blueorredpill = container.NewVBox(
+			widget.NewButton("of course", func() {
+				log.Println("The sire has concluded an affermative choice to:", message)
+				win.Close()
+			}),
+			widget.NewButton("i demand you be taken to the prision!", func() {
+				log.Printf("The sire said no to: %s Were doomed now!", message)
+				win.Close()
+			}),
+		)
+	} else {
+		blueorredpill = widget.NewButton("Yes", func() {
+			win.Close()
+		})
+	}
+
+	win.SetContent(container.NewVBox(
+		label,
+		blueorredpill,
+		closeBtn,
+	))
+	win.CenterOnScreen()
+	win.Resize(fyne.NewSize(200, 100))
+	win.Show()
 }
