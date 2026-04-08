@@ -132,7 +132,7 @@ func spawnPopup(a fyne.App, title string, message string, isthereachoice bool) {
 		blueorredpill,
 		closeBtn,
 	))
+	win.Resize(fyne.NewSize(300, 150))
 	win.CenterOnScreen()
-	win.Resize(fyne.NewSize(200, 100))
 	win.Show()
 }
