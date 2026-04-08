@@ -1,4 +1,4 @@
-module my-own-first-go-gui-app
+module goappguitmtm
 
 go 1.25.0
 
