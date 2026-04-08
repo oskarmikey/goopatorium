@@ -3,9 +3,9 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
-	"os"
 )
 
 type Message struct {
@@ -26,11 +26,11 @@ type TogetherResponse struct {
 }
 
 func getAIResponse(history []Message) (string, error) {
-	apiKey := os.Getenv("TOGETHER_API_KEY")
+	apiKey := "Oops wont share this key!"
 	url := "https://api.together.xyz/v1/chat/completions"
 
 	reqBody := TogetherRequest{
-		Model:    "meta-llama/Llama-3-70b-chat-hf",
+		Model:    "openai/gpt-oss-20b",
 		Messages: history,
 		Stream:   false,
 	}
@@ -39,9 +39,11 @@ func getAIResponse(history []Message) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	fmt.Println("--- SENDING REQUEST ---")
+	fmt.Println(string(jsonData))
 
 	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
-	req.Header.Set("Authorization", "bearer "+apiKey)
+	req.Header.Set("Authorization", "Bearer "+apiKey)
 	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}
@@ -50,8 +52,12 @@ func getAIResponse(history []Message) (string, error) {
 		return "", err
 	}
 	defer resp.Body.Close()
+	fmt.Println("Status Code:", resp.Status)
 
 	body, _ := io.ReadAll(resp.Body)
+	fmt.Println("--- RAW RESPONSE ---")
+	fmt.Println(string(body))
+
 	var result TogetherResponse
 	if err := json.Unmarshal(body, &result); err != nil {
 		return "", err

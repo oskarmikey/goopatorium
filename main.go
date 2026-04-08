@@ -2,12 +2,10 @@ package main
 
 import (
 	"fmt"
-	"image/color"
 	"log"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
-	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
 )
@@ -148,18 +146,49 @@ func spawnPopup(a fyne.App, title string, message string, isthereachoice bool) {
 func tgaillmchat(a fyne.App) {
 	cWin := a.NewWindow("Chat")
 
-	label := widget.NewLabel("test")
-
-	text := canvas.NewText("Text Object", color.White)
-	text.Alignment = fyne.TextAlignTrailing
+	// Using a Label instead of Canvas Text for better chat behavior
+	text := widget.NewLabel("bla bla bla")
+	text.Alignment = fyne.TextAlignLeading // Left side
 	text.TextStyle = fyne.TextStyle{Italic: true}
+	text.Wrapping = fyne.TextWrapWord
+
+	input := widget.NewEntry()
+	input.SetPlaceHolder("yolo")
+
+	var fullHistory []Message
+	submitBtn := widget.NewButton("Send", func() {
+		userText := input.Text
+		if userText == "" {
+			return
+		}
+		fullHistory = append(fullHistory, Message{Role: "user", Content: userText})
+		text.SetText("You: " + userText + "\n\nThinking...")
+
+		go func() {
+			reply, err := getAIResponse(fullHistory)
+
+			if err != nil {
+				fmt.Println("Error fetching response:", err)
+				// Even in error, let's update the UI safely
+				text.SetText("Error: " + err.Error())
+				return
+			}
+
+			fullHistory = append(fullHistory, Message{Role: "assistant", Content: reply})
+			fmt.Println("Ai rasppbery:", reply)
+
+			text.SetText(reply)
+			input.SetText("")
+		}()
+	})
 
 	cWin.SetContent(container.NewVBox(
-		label,
-		text,
+		container.NewVScroll(text),
+		input,
+		container.NewGridWrap(fyne.NewSize(200, 50), submitBtn),
 	))
 
+	cWin.Resize(fyne.NewSize(400, 300)) // E
 	cWin.CenterOnScreen()
-	cWin.Resize(fyne.NewSize(200, 200))
 	cWin.Show()
 }

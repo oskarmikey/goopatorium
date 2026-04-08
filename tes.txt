@@ -1,0 +1,50 @@
+func tgaillmchat(a fyne.App) {
+	cWin := a.NewWindow("Chat")
+
+	text := widget.NewLabel("Welcome to the Buggati Chat...")
+	text.Wrapping = fyne.TextWrapWord
+
+	input := widget.NewEntry()
+	input.SetPlaceHolder("Type here...")
+
+	var fullHistory []Message
+	submitBtn := widget.NewButton("Send", func() {
+		userText := input.Text
+		if userText == "" {
+			return
+		}
+		
+		fullHistory = append(fullHistory, Message{Role: "user", Content: userText})
+		text.SetText("You: " + userText + "\n\nThinking...")
+
+		go func() {
+			reply, err := getAIResponse(fullHistory)
+
+			// FIX: Check if err is NOT nil
+			if err != nil {
+				fmt.Println("Error fetching response:", err)
+				// Even in error, let's update the UI safely
+				text.SetText("Error: " + err.Error())
+				return
+			}
+
+			fullHistory = append(fullHistory, Message{Role: "assistant", Content: reply})
+			fmt.Println("Ai response:", reply)
+
+			// Fyne widgets usually handle SetText thread-safely now.
+			// Just don't call Canvas().Refresh() here!
+			text.SetText(reply)	
+			input.SetText("")
+		}()
+	})
+
+	cWin.SetContent(container.NewVBox(
+		container.NewVScroll(text),
+		input,
+		container.NewGridWrap(fyne.NewSize(200, 50), submitBtn),
+	))
+
+	cWin.Resize(fyne.NewSize(400, 500))
+	cWin.CenterOnScreen()
+	cWin.Show()
+}
