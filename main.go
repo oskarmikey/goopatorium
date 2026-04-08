@@ -45,6 +45,11 @@ func main() {
 		log.Println("It was set to", value)
 	})
 
+	openCat := widget.NewButton("Open seasamy", func() {
+		log.Println("Boop!")
+		tgaillmchat(myApp)
+	})
+
 	entry := widget.NewEntry()
 	textArea := widget.NewMultiLineEntry()
 	form := &widget.Form{
@@ -63,6 +68,7 @@ func main() {
 		sizedSaveBtn,
 		boopBtn,
 		boopBtnSpawnPopup,
+		openCat,
 		check,
 		radio,
 		combo,
@@ -135,4 +141,19 @@ func spawnPopup(a fyne.App, title string, message string, isthereachoice bool) {
 	win.Resize(fyne.NewSize(300, 150))
 	win.CenterOnScreen()
 	win.Show()
+}
+
+func tgaillmchat(a fyne.App) {
+	cWin := a.NewWindow("Chat")
+
+	label := widget.NewLabel("test")
+
+	textArea := widget.
+		cWin.SetContent(container.NewVBox(
+		label,
+	))
+
+	cWin.CenterOnScreen()
+	cWin.Resize(fyne.NewSize(200, 100))
+	cWin.Show()
 }

@@ -6,3 +6,4 @@ my-gui-app (or whatever your binary name is)
 bin/
 fyne-cross/
 
+.env

@@ -13,13 +13,13 @@ import (
 
 func main() {
 	myApp := app.New()
-	myWindow := myApp.NewWindow(" Button testi")
+	myWindow := myApp.NewWindow("Button Test")
 
 	fpsLabel := widget.NewLabel("fps: 0")
 
+	// FPS counter goroutine
 	go func() {
 		for {
-
 			start := time.Now()
 			time.Sleep(time.Millisecond * 100)
 			fps := 1.0 / time.Since(start).Seconds()
@@ -28,33 +28,25 @@ func main() {
 		}
 	}()
 
-	fmt.Println("this shit works!")
-
 	input := widget.NewEntry()
-	input.SetPlaceHolder("yolo")
+	input.SetPlaceHolder("Enter text here")
 
-	input_saveBtnSize := fyne.NewSize(200, 50)
-	saveBtn := widget.NewButton("save", func() {
-		log.Println("saved info is: ", input.Text)
+	saveBtn := widget.NewButton("Save", func() {
+		log.Println("Saved info:", input.Text)
 	})
-	sizedSaveBtn := container.NewGridWrap(input_saveBtnSize, saveBtn)
 
-	boopBtn := widget.NewButton("boops here", func() {
+	boopBtn := widget.NewButton("Boop", func() {
 		log.Println("Boop!")
 	})
 
 	mainLayout := container.NewVBox(
 		fpsLabel,
 		input,
-		sizedSaveBtn,
+		saveBtn,
 		boopBtn,
 	)
 
 	myWindow.CenterOnScreen()
-
-	myWindow.Canvas().Size()
-
 	myWindow.SetContent(mainLayout)
 	myWindow.ShowAndRun()
-
 }
