@@ -2,10 +2,12 @@ package main
 
 import (
 	"fmt"
+	"image/color"
 	"log"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
+	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
 )
@@ -148,12 +150,16 @@ func tgaillmchat(a fyne.App) {
 
 	label := widget.NewLabel("test")
 
-	textArea := widget.
-		cWin.SetContent(container.NewVBox(
+	text := canvas.NewText("Text Object", color.White)
+	text.Alignment = fyne.TextAlignTrailing
+	text.TextStyle = fyne.TextStyle{Italic: true}
+
+	cWin.SetContent(container.NewVBox(
 		label,
+		text,
 	))
 
 	cWin.CenterOnScreen()
-	cWin.Resize(fyne.NewSize(200, 100))
+	cWin.Resize(fyne.NewSize(200, 200))
 	cWin.Show()
 }
