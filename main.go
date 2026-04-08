@@ -41,6 +41,19 @@ func main() {
 		log.Println("It was set to", value)
 	})
 
+	entry := widget.NewEntry()
+	textArea := widget.NewMultiLineEntry()
+	form := &widget.Form{
+		Items: []*widget.FormItem{
+			{Text: "Ouchie", Widget: entry}},
+		OnSubmit: func() {
+			log.Println("Form submite", entry.Text)
+			log.Println("multline", textArea.Text)
+		},
+	}
+
+	form.Append("text", textArea)
+
 	mainLayout := container.NewVBox(
 		input,
 		sizedSaveBtn,
@@ -48,6 +61,7 @@ func main() {
 		check,
 		radio,
 		combo,
+		form,
 	)
 
 	myWindow.CenterOnScreen()
@@ -57,4 +71,8 @@ func main() {
 	myWindow.SetContent(mainLayout)
 	myWindow.ShowAndRun()
 
+}
+
+func alterPopup() {
+	alertWindow.
 }
