@@ -26,7 +26,7 @@ type TogetherResponse struct {
 }
 
 func getAIResponse(history []Message) (string, error) {
-	apiKey := "keyhere"
+	apiKey := ""
 	url := "https://api.together.xyz/v1/chat/completions"
 
 	reqBody := TogetherRequest{

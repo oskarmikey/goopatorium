@@ -47,7 +47,7 @@ func main() {
 
 	openCat := widget.NewButton("Open seasamy", func() {
 		log.Println("Boop!")
-		llmChat(myApp)
+		tgaillmchat(myApp)
 	})
 
 	entry := widget.NewEntry()
@@ -141,4 +141,65 @@ func spawnPopup(a fyne.App, title string, message string, isthereachoice bool) {
 	win.Resize(fyne.NewSize(300, 150))
 	win.CenterOnScreen()
 	win.Show()
+}
+
+func tgaillmchat(a fyne.App) {
+	cWin := a.NewWindow("Bugatti Chat Engine")
+
+	// 1. Use RichText so the AI's Markdown (tables/bold) actually renders!
+	chatDisplay := widget.NewRichTextFromMarkdown("## Welcome to the Engine Room\nType something to begin...")
+
+	// Wrap the chat in a scroll container
+	scrollContainer := container.NewVScroll(chatDisplay)
+
+	// 2. MultiLineEntry allows for a better input feel
+	input := widget.NewMultiLineEntry()
+	input.SetPlaceHolder("Message the AI...")
+
+	var fullHistory []Message
+
+	// Function to handle sending (so we can call it from the button OR the keyboard)
+	sendFunc := func() {
+		userText := input.Text
+		if userText == "" {
+			return
+		}
+
+		input.SetText("") // Clear immediately for snappiness
+		fullHistory = append(fullHistory, Message{Role: "user", Content: userText})
+
+		// Update display to show we are thinking
+		chatDisplay.ParseMarkdown("Thinking...")
+
+		go func() {
+			reply, err := getAIResponse(fullHistory)
+			if err != nil {
+				chatDisplay.ParseMarkdown("**Error:** " + err.Error())
+				return
+			}
+
+			fullHistory = append(fullHistory, Message{Role: "assistant", Content: reply})
+
+			// Render the full response as Markdown
+			chatDisplay.ParseMarkdown(reply)
+
+			// Auto-scroll to bottom
+			scrollContainer.ScrollToBottom()
+		}()
+	}
+
+	// 3. The "Border" Layout: Scroll in Center, Input + Button at Bottom
+	sendBtn := widget.NewButton("Send", sendFunc)
+
+	// Create a bottom row with the input and the button
+	// Using a GridWrap or just a simple HBox for the button
+	bottomRow := container.NewBorder(nil, nil, nil, sendBtn, input)
+
+	// Final Layout: Scroll area takes all space, bottomRow stays pinned
+	content := container.NewBorder(nil, bottomRow, nil, nil, scrollContainer)
+
+	cWin.SetContent(content)
+	cWin.Resize(fyne.NewSize(500, 600))
+	cWin.CenterOnScreen()
+	cWin.Show()
 }
